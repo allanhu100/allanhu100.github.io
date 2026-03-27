@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<link rel="stylesheet" href="/styles/warning.css">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>⚠️ Testing Playground</title>
@@ -27,50 +28,6 @@
 <header>Dinosaur 🦖</header>
 <p>Rawr</p>
 <img src="https://github.com/user-attachments/assets/a84ef3ad-5890-4d51-98a5-f3c5c329608d" alt="Dinosaur">
-
-<div class="card" id="warningBanner">
-  <div class="header">
-    <div class="image">
-      <svg
-        aria-hidden="true"
-        stroke="currentColor"
-        stroke-width="1.5"
-        viewBox="0 0 24 24"
-        fill="none"
-      >
-        <path
-          d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"
-          stroke-linejoin="round"
-          stroke-linecap="round"
-        ></path>
-      </svg>
-    </div>
-    <div class="content">
-      <span class="title">⚠️ WARNING</span>
-      <p class="message">
-        This page is a testing playground and may be incomplete. Page functionality may vary.
-        Are you sure you want to continue?
-      </p>
-    </div>
-    <div class="actions">
-      <button class="continue" type="button">Continue</button>
-      <button class="return" type="button" id="returnToHome">Return to Home</button>
-    </div>
-  </div>
-</div>
-
-<script>
-  // Redirect when "Return to Home" is clicked
-  document.getElementById('returnToHome').addEventListener('click', function() {
-    window.location.href = 'https://allanhu100.github.io/home?redirect=testing_playground';
-  });
-
-  // Hide banner when "Continue" is clicked
-  document.querySelector('.continue').addEventListener('click', function() {
-    document.getElementById('warningBanner').style.display = 'none';
-  });
-</script>
-
-
+<script src="/components/warning.js"></script>
 </body>
 </html>
