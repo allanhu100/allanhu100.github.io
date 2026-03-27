@@ -21,46 +21,6 @@
         height: auto;
     }
 
-    /* Banner styles */
-    .notifications-container {
-        position: fixed;
-        bottom: 20px;
-        right: 20px;
-        width: 320px;
-        z-index: 1000;
-        font-family: Arial, sans-serif;
-    }
-
-    .alert {
-        background-color: #fff8c5;
-        border-left: 5px solid #facc15;
-        padding: 10px 15px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-        border-radius: 5px;
-        display: flex;
-        align-items: center; /* Centers icon vertically */
-        gap: 10px;
-    }
-
-    .alert svg {
-        width: 20px;
-        height: 20px;
-        flex-shrink: 0;
-        color: #f59e0b;
-    }
-
-    .alert-prompt-wrap {
-        text-align: left;
-        font-size: 14px;
-        color: #78350f;
-    }
-
-    .alert-prompt-wrap a {
-        display: inline-block;
-        margin-top: 5px;
-        color: #1d4ed8;
-        text-decoration: underline;
-    }
 </style>
 </head>
 <body>
@@ -68,17 +28,49 @@
 <p>Rawr</p>
 <img src="https://github.com/user-attachments/assets/a84ef3ad-5890-4d51-98a5-f3c5c329608d" alt="Dinosaur">
 
-<div class="notifications-container">
-    <div class="alert">
-        <svg aria-hidden="true" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-            <path clip-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" fill-rule="evenodd"></path>
-        </svg>
-        <div class="alert-prompt-wrap">
-            <p>This is a testing page. Page functionality may vary.</p>
-            <a href="https://allanhu100.github.io/home">Go back to Home Page</a>
-        </div>
+<div class="card" id="warningBanner">
+  <div class="header">
+    <div class="image">
+      <svg
+        aria-hidden="true"
+        stroke="currentColor"
+        stroke-width="1.5"
+        viewBox="0 0 24 24"
+        fill="none"
+      >
+        <path
+          d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"
+          stroke-linejoin="round"
+          stroke-linecap="round"
+        ></path>
+      </svg>
     </div>
+    <div class="content">
+      <span class="title">⚠️ WARNING</span>
+      <p class="message">
+        This page is a testing playground and may be incomplete. Page functionality may vary.
+        Are you sure you want to continue?
+      </p>
+    </div>
+    <div class="actions">
+      <button class="continue" type="button">Continue</button>
+      <button class="return" type="button" id="returnToHome">Return to Home</button>
+    </div>
+  </div>
 </div>
+
+<script>
+  // Redirect when "Return to Home" is clicked
+  document.getElementById('returnToHome').addEventListener('click', function() {
+    window.location.href = 'https://allanhu100.github.io/home?redirect=testing_playground';
+  });
+
+  // Hide banner when "Continue" is clicked
+  document.querySelector('.continue').addEventListener('click', function() {
+    document.getElementById('warningBanner').style.display = 'none';
+  });
+</script>
+
 
 </body>
 </html>
