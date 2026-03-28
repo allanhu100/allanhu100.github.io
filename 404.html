@@ -107,6 +107,7 @@ body {
   width: 60px;
   height: 60px;
   border-radius: 2em;
+  z-index: 2;
 }
 
 .astronaut__backpack {
@@ -155,6 +156,22 @@ body {
 .astronaut__foot-left { left: 43px; transform: rotate(10deg); }
 .astronaut__foot-right { left: 111px; transform: rotate(-10deg); }
 
+/* Canvas positioning */
+#visor {
+  position: absolute;
+  top: 60px;
+  left: 60px;
+  z-index: 3;
+}
+
+#cord {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+
 </style>
 </head>
 
@@ -188,6 +205,16 @@ body {
 </div>
 
 <div class="astronaut">
+  <div class="astronaut__backpack"></div>
+  <div class="astronaut__body"></div>
+  <div class="astronaut__head"></div>
+
+  <div class="astronaut__leg-left"></div>
+  <div class="astronaut__leg-right"></div>
+
+  <div class="astronaut__foot-left"></div>
+  <div class="astronaut__foot-right"></div>
+
   <canvas id="cord" width="500" height="500"></canvas>
   <canvas id="visor" width="60" height="60"></canvas>
 </div>
