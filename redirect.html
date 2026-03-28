@@ -6,15 +6,15 @@
 <title>Redirecting...</title>
 <script>
   const params = new URLSearchParams(window.location.search);
-  const page = params.get('page');
+  const id = params.get('id');
 
   const redirects = {
     home: 'https://allanhu100.github.io',
     dino_game: 'https://allanhu100.github.io/dinosaur-game',
   };
 
-  if (page && redirects[page]) {
-    window.location.href = redirects[page];
+  if (id && redirects[id]) {
+    window.location.href = redirects[id];
   } else {
     window.location.href = 'https://allanhu100.github.io/404';
   }
