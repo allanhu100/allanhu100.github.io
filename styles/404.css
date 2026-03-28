@@ -1,0 +1,107 @@
+@use postcss-simple-vars;
+@use postcss-nested;
+
+/* colors */
+$blue: #293b49;
+$pink: #fdabaf;
+$pink-light: #ffe0e6;
+$green: #04cba0;
+$green-dark: #01ac88;
+$white: white;
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+}
+
+html {
+  font-size: 62.5%;
+}
+
+body {
+  font-family: "Lato", sans-serif;
+  font-size: 1.5rem;
+  color: $blue;
+}
+
+a {
+  text-decoration: none;
+}
+
+.center {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+
+.error {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-content: center;
+}
+
+.number {
+  font-weight: 900;
+  font-size: 15rem;
+  line-height: 1;
+}
+
+.illustration {
+  position: relative;
+  width: 12.2rem;
+  margin: 0 2.1rem;
+}
+
+.circle {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 12.2rem;
+  height: 11.4rem;
+  border-radius: 50%;
+  background-color: $blue;
+}
+
+.clip {
+  position: absolute;
+  bottom: 0.3rem;
+  left: 50%;
+  transform: translateX(-50%);
+  overflow: hidden;
+  width: 12.5rem;
+  height: 13rem;
+  border-radius: 0 0 50% 50%;
+}
+
+.text {
+  margin-top: 5rem;
+  font-weight: 300;
+  color: $blue;
+}
+
+.button {
+  margin-top: 4rem;
+  padding: 1.2rem 3rem;
+  color: $white;
+  background-color: $green;
+  
+  &:hover {
+    background-color: $green-dark;
+  }
+}
+
+.by {
+  position: absolute;
+  bottom: 0.5rem;
+  left: 0.5rem;
+  text-transform: uppercase;
+  color: $blue;
+}
+
+.byLink {
+  color: $green;
+}
