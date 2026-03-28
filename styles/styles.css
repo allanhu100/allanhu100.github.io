@@ -49,3 +49,14 @@
   color: inherit;
   transition: color 0.6s ease;
 }
+
+.footer {
+  position: fixed;
+  bottom: 10px;
+  left: 10px;
+  color: #555555;
+  font-size: 0.85rem;
+  font-family: sans-serif;
+  pointer-events: none;
+  z-index: 1000;
+}
