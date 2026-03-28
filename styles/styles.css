@@ -12,7 +12,7 @@
   width: 8.5em;
   height: 2.9em;
   padding: 0 1.5em;
-  background-color: #ffffff00;
+  background-color: #8799ff;
   color: #fff;
   border: #3654ff 0.2em solid;
   border-radius: 11px;
@@ -40,7 +40,7 @@
   transform: translateX(5px);
 }
 .button:hover svg {
-  transform: translateX(5px);
+  transform: translateX(4px);
 }
 
 .text {
