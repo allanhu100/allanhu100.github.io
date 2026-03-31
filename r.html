@@ -4,8 +4,28 @@
 <meta charset="UTF-8">
 <title>Redirecting...</title>
 <style>
-  body { font-family: sans-serif; text-align: center; padding: 2rem; }
-  #preview { margin-top: 2rem; font-weight: bold; }
+  body { font-family: sans-serif; text-align: center; padding: 2rem; background: #f9f9f9; color: #333; }
+  #previewBox {
+    display: inline-block;
+    background: #e0e0e0;
+    padding: 1.5rem;
+    border-radius: 8px;
+    max-width: 90%;
+    word-wrap: break-word;
+    margin-top: 2rem;
+    font-size: 1.1rem;
+  }
+  #buttons { margin-top: 1.5rem; }
+  button {
+    padding: 0.6rem 1rem;
+    margin: 0 0.5rem;
+    font-size: 1rem;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  #redirectNow { background: #4caf50; color: white; }
+  #cancelRedirect { background: #f44336; color: white; }
 </style>
 <script>
 (async () => {
@@ -25,7 +45,7 @@
     const csvText = await res.text();
 
     const lines = csvText.trim().split('\n');
-    lines.shift();
+    lines.shift(); // skip header
 
     const redirects = {};
     lines.forEach(line => {
@@ -43,15 +63,36 @@
 
     if (redirectObj && (!redirectObj.expiry || new Date() < new Date(redirectObj.expiry))) {
       if (redirectObj.displayPreview) {
-        // Show preview
-        const preview = document.createElement('div');
-        preview.id = 'preview';
-        preview.innerHTML = `Redirecting to: <a href="${redirectObj.url}" target="_blank">${redirectObj.url}</a>`;
-        document.body.appendChild(preview);
+        // Create preview box
+        const previewBox = document.createElement('div');
+        previewBox.id = 'previewBox';
+        previewBox.innerHTML = `
+          You are being redirected to:<br><a href="${redirectObj.url}" target="_blank">${redirectObj.url}</a>
+          <div id="buttons">
+            <button id="redirectNow">Redirect Now</button>
+            <button id="cancelRedirect">Cancel Redirect</button>
+          </div>
+          <p id="timer">Redirecting in 10 seconds...</p>
+        `;
+        document.body.appendChild(previewBox);
 
-        setTimeout(() => {
-          window.location.href = redirectObj.url;
-        }, 2500);
+        // Timer
+        let countdown = 10;
+        const timerEl = document.getElementById('timer');
+        const interval = setInterval(() => {
+          countdown--;
+          if (countdown > 0) {
+            timerEl.textContent = `Redirecting in ${countdown} seconds...`;
+          } else {
+            clearInterval(interval);
+            window.location.href = redirectObj.url;
+          }
+        }, 1000);
+
+        // Button handlers
+        document.getElementById('redirectNow').onclick = () => window.location.href = redirectObj.url;
+        document.getElementById('cancelRedirect').onclick = () => window.location.href = 'https://allanhu100.github.io';
+
       } else {
         // Immediate redirect
         window.location.href = redirectObj.url;
