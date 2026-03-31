@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<link rel="stylesheet" href="styles/styles.css">
 <title>Redirecting...</title>
 <script>
 (() => {
@@ -9,7 +10,6 @@
   const idParam = params.get('id');
 
   if (idParam) {
-    // Forward to the new canonical r?id= URL
     window.location.href = `/r?id=${encodeURIComponent(idParam)}`;
   } else {
     document.body.textContent = "No id provided for redirect ❌";
@@ -18,8 +18,8 @@
 </script>
 </head>
 <body>
-Redirecting…
-
+<h1>Redirecting…</h1>
+<div class="div"></div>
 ⚠️ redirect.html is deprecated and will redirect traffic to r.html
 </body>
 </html>
