@@ -11,8 +11,6 @@
     padding: 2rem;
     background: #f9f9f9;
     color: #333;
-
-    /* Center everything nicely */
     display: flex;
     justify-content: center;
     align-items: center;
@@ -78,6 +76,11 @@
 
   const sheetCSVUrl = `https://docs.google.com/spreadsheets/d/e/2PACX-1vQqTIz74rTp4UAPrND29ZzRMoDgQS2HLB7FKU5m1IF0AhvvxPgn7ocyUXy9DMiGVb1_DKiePMGIVNTc/pub?gid=463148270&single=true&output=csv&t=${Date.now()}`;
 
+  function isValidUrl(str) {
+    try { new URL(str); return true; } 
+    catch { return false; }
+  }
+
   try {
     const res = await fetch(sheetCSVUrl);
     if (!res.ok) throw new Error('Could not fetch redirects sheet');
@@ -95,61 +98,75 @@
         expiry: row[3]?.trim(),
         displayPreview: (row[4]?.trim().toUpperCase() === "TRUE")
       };
-      if (redirect.id && redirect.url) {
-        redirects[redirect.id] = redirect;
-      }
+      if (redirect.id && redirect.url) redirects[redirect.id] = redirect;
     });
 
-    const redirectObj = redirects[idParam];
+    let redirectObj = redirects[idParam];
+    let urlToUse;
 
+    // Determine redirect URL
     if (redirectObj && (!redirectObj.expiry || new Date() < new Date(redirectObj.expiry))) {
+      urlToUse = redirectObj.url;
+    } else if (isValidUrl(idParam)) {
+      urlToUse = idParam.startsWith('http') ? idParam : `https://${idParam}`;
+      redirectObj = { displayPreview: true, isCSV: false }; // mark as arbitrary URL
+    } else {
+      document.body.innerHTML = `<div class="message">Link expired or ID not found ❌</div>`;
+      return;
+    }
 
-      if (redirectObj.displayPreview) {
-        const previewBox = document.createElement('div');
-        previewBox.id = 'previewBox';
+    if (redirectObj.displayPreview) {
+      const urlObj = new URL(urlToUse);
+      const previewBox = document.createElement('div');
+      previewBox.id = 'previewBox';
 
-        previewBox.innerHTML = `
-          You are being redirected to:<br>
-          <a href="${redirectObj.url}" target="_blank">${redirectObj.url}</a>
+      // Base content
+      previewBox.innerHTML = `
+        ⚠️ Go at your own risk!<br><br>
+        <strong>URL:</strong> <a href="${urlObj.href}" target="_blank">${urlObj.href}</a><br>
+        <strong>Protocol:</strong> ${urlObj.protocol}<br>
+        <strong>Hostname:</strong> ${urlObj.hostname}<br>
+        <strong>Path:</strong> ${urlObj.pathname}<br>
+        <strong>Port:</strong> ${urlObj.port || 'default'}<br>
+        <div id="buttons">
+          <button id="redirectNow">Redirect Now</button>
+          <button id="cancelRedirect">Cancel Redirect</button>
+        </div>
+      `;
 
-          <div id="buttons">
-            <button id="redirectNow">Redirect Now</button>
-            <button id="cancelRedirect">Cancel Redirect</button>
-          </div>
+      // Add timer only if CSV ID
+      if (redirectObj.isCSV !== false) {
+        previewBox.innerHTML += `<p id="timer">Redirecting in 10 seconds...</p>`;
+      }
 
-          <p id="timer">Redirecting in 10 seconds...</p>
-        `;
+      document.body.innerHTML = "";
+      document.body.appendChild(previewBox);
 
-        document.body.innerHTML = "";
-        document.body.appendChild(previewBox);
+      document.getElementById('redirectNow').onclick = () => {
+        window.location.href = urlObj.href;
+      };
 
+      document.getElementById('cancelRedirect').onclick = () => {
+        window.location.href = 'https://allanhu100.github.io';
+      };
+
+      // Countdown for CSV IDs only
+      if (redirectObj.isCSV !== false) {
         let countdown = 10;
         const timerEl = document.getElementById('timer');
-
         const interval = setInterval(() => {
           countdown--;
           if (countdown > 0) {
             timerEl.textContent = `Redirecting in ${countdown} seconds...`;
           } else {
             clearInterval(interval);
-            window.location.href = redirectObj.url;
+            window.location.href = urlObj.href;
           }
         }, 1000);
-
-        document.getElementById('redirectNow').onclick = () => {
-          window.location.href = redirectObj.url;
-        };
-
-        document.getElementById('cancelRedirect').onclick = () => {
-          window.location.href = 'https://allanhu100.github.io';
-        };
-
-      } else {
-        window.location.href = redirectObj.url;
       }
 
     } else {
-      document.body.innerHTML = `<div class="message">Link expired or ID not found ❌</div>`;
+      window.location.href = urlToUse;
     }
 
   } catch (e) {
@@ -160,7 +177,6 @@
 </script>
 
 </head>
-
 <body>
   <div class="message">Redirecting, please wait...</div>
 </body>
