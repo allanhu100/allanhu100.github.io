@@ -31,9 +31,17 @@
 <script>
 (function() {
     const params = new URLSearchParams(window.location.search);
+    const key = params.get("key");
     const allData = params.getAll("data");
     const output = document.getElementById("output");
     output.innerHTML = "";
+
+    if (key !== "fef68a7b") {
+        const li = document.createElement("li");
+        li.textContent = "❌ Invalid or missing key";
+        output.appendChild(li);
+        return;
+    }
 
     let found = false;
 
