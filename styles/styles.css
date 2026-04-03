@@ -30,7 +30,19 @@ img { max-width: 100%; height: auto; margin: 20px 0; border-radius: 10px; box-sh
     z-index: 1000;
 }
 
-.logo { font-size: 1.5rem; font-weight: bold; }
+.logo {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: black;
+  text-decoration: none;
+}
+
+.logo:link,
+.logo:visited,
+.logo:hover,
+.logo:active {
+  color: black;
+}
 
 .nav-bar a {
     color: #fff;
