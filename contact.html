@@ -22,7 +22,7 @@
 <main class="content credits-page">
     <h1>Contact Info</h1>
     <ul class="credits" id="output">
-        <li>❌ No valid data found</li>
+        <li>❌ No valid data found.</li>
     </ul>
 </main>
 
@@ -38,7 +38,7 @@
 
     if (key !== "fef68a7b") {
         const li = document.createElement("li");
-        li.textContent = "❌ Invalid or missing key";
+        li.textContent = "❌ This requires authentication.";
         output.appendChild(li);
         return;
     }
@@ -58,7 +58,7 @@
 
     if (!found) {
         const li = document.createElement("li");
-        li.textContent = "❌ No valid data found";
+        li.textContent = "❌ No valid data found.";
         output.appendChild(li);
     }
 })();
