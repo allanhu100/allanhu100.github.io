@@ -117,25 +117,33 @@ img { max-width: 100%; height: auto; margin: 20px 0; border-radius: 10px; box-sh
     left: -60%;
 }
 
+.credits-page {
+    max-width: 800px;
+    margin: 100px auto 40px;
+    text-align: center;
+    background-color: #f5f5f5;
+    padding: 40px 20px;
+    border-radius: 12px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+}
+
 .credits {
     list-style: none;
     padding: 0;
-    margin: 0;
+    margin: 20px 0 0 0;
 }
 
 .credits li {
-    margin: 0.5rem 0;
+    margin: 0.8rem 0;
     font-size: 1.2rem;
-    transition: color 0.3s ease, transform 0.3s ease;
 }
 
 .credits li a {
     text-decoration: none;
-    color: #333;
-    display: inline-block;
+    color: #1e1e1e;
     padding: 6px 12px;
     border-radius: 5px;
-    transition: background 0.3s, color 0.3s, transform 0.3s;
+    transition: all 0.3s ease;
 }
 
 .credits li a:hover {
@@ -145,8 +153,12 @@ img { max-width: 100%; height: auto; margin: 20px 0; border-radius: 10px; box-sh
 }
 
 @media (max-width: 500px) {
+    .credits-page {
+        margin: 80px 20px 20px;
+        padding: 30px 15px;
+    }
     h1 {
-        font-size: 2rem;
+        font-size: 1.8rem;
     }
     .credits li {
         font-size: 1rem;
