@@ -23,31 +23,36 @@ img { max-width: 100%; height: auto; margin: 20px 0; border-radius: 10px; box-sh
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 15px 30px;
-    box-shadow: 0 3px 8px rgba(0,0,0,0.2);
-    position: sticky;
-    top: 0;
-    z-index: 1000;
+    padding: 1px 30px; 
+    min-height: 60px; 
+    box-sizing: border-box; 
+    line-height: 1; 
+    box-shadow: rgba(0, 0, 0, 0.2) 0px 6px 8px; 
+    position: sticky; 
+    top: 0px; 
+    z-index: 1000; 
 }
 
 .logo {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 10px;
     text-decoration: none;
 }
 
 .logo-img {
-    width: 24px;
-    height: 24px;
+    width: 48px;
+    height: 48px;
     object-fit: contain;
+    display: block;
+    flex-shrink: 0;
 }
 
 .logo:link,
 .logo:visited,
 .logo:hover,
 .logo:active {
-  color: white;
+    color: white;
 }
 
 .nav-bar a {
