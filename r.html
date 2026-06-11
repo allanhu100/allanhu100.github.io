@@ -6,197 +6,267 @@
 <title>Redirecting...</title>
 
 <style>
-  body {
-    font-family: sans-serif;
-    text-align: center;
-    padding: 2rem;
-    background: #f9f9f9;
-    color: #333;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    flex-direction: column;
-  }
+body{
+  margin:0;
+  height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+  background:#f5f7fb;
+}
 
-  .message {
-    font-size: 2rem;
-    font-weight: bold;
-    text-align: center;
-  }
+.card{
+  background:white;
+  padding:40px 50px;
+  border-radius:16px;
+  box-shadow:0 10px 30px rgba(0,0,0,.08);
+  text-align:center;
+  max-width:420px;
+  width:90%;
+}
 
-  #previewBox {
-    display: inline-block;
-    background: #e0e0e0;
-    padding: 1.5rem;
-    border-radius: 8px;
-    max-width: 90%;
-    word-wrap: break-word;
-    margin-top: 2rem;
-    font-size: 1.2rem;
-  }
+.card h1{
+  margin:0 0 10px;
+  font-size:22px;
+  color:#222;
+}
 
-  #buttons {
-    margin-top: 1.5rem;
-  }
+.card p{
+  margin:0 0 20px;
+  color:#666;
+  font-size:14px;
+}
 
-  button {
-    padding: 0.6rem 1rem;
-    margin: 0 0.5rem;
-    font-size: 1rem;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-  }
+.btn{
+  display:inline-block;
+  padding:12px 20px;
+  border:none;
+  border-radius:8px;
+  cursor:pointer;
+  text-decoration:none;
+  color:white;
+  font-weight:500;
+  background:linear-gradient(135deg,#4f46e5,#7c3aed);
+}
 
-  #redirectNow {
-    background: #4caf50;
-    color: white;
-  }
+.btn-danger{
+  background:linear-gradient(135deg,#dc2626,#ef4444);
+}
 
-  #cancelRedirect {
-    background: #f44336;
-    color: white;
-  }
-
-  #timer {
-    margin-top: 1rem;
-    font-size: 1rem;
-  }
+#timer{
+  margin-top:15px;
+  color:#666;
+  font-size:14px;
+}
 </style>
 
 <script>
 (async () => {
-  const params = new URLSearchParams(window.location.search);
-  const idParam = params.get('id');
 
-  if (idParam === null || idParam.trim() === "") {
-    document.body.innerHTML = `<div class="message">No id provided for redirect ❌</div>`;
+const SHEET_URL =
+  `https://docs.google.com/spreadsheets/d/e/2PACX-1vQqTIz74rTp4UAPrND29ZzRMoDgQS2HLB7FKU5m1IF0AhvvxPgn7ocyUXy9DMiGVb1_DKiePMGIVNTc/pub?gid=463148270&single=true&output=csv&t=${Date.now()}`;
+  
+    title = "Error",
+    message = "The link may be invalid or expired."
+  ) {
+    document.body.innerHTML = `
+      <div class="card">
+        <h1>${title}</h1>
+        <p>${message}</p>
+      </div>
+    `;
+  }
+
+  const pathParts =
+    window.location.pathname.split("/").filter(Boolean);
+
+  const params =
+    new URLSearchParams(window.location.search);
+
+  if (
+    pathParts.length !== 1 ||
+    pathParts[0] !== "r"
+  ) {
+    showError("Invalid URL");
     return;
-}
+  }
 
-  const sheetCSVUrl = `https://docs.google.com/spreadsheets/d/e/2PACX-1vQqTIz74rTp4UAPrND29ZzRMoDgQS2HLB7FKU5m1IF0AhvvxPgn7ocyUXy9DMiGVb1_DKiePMGIVNTc/pub?gid=463148270&single=true&output=csv&t=${Date.now()}`;
+  const id = params.get("id");
 
-  // Normalize bare domains to valid URL objects
-  function normalizeUrl(str) {
-    try {
-      const urlStr = str.startsWith('http://') || str.startsWith('https://') 
-        ? str 
-        : `https://${str}`;
-      const urlObj = new URL(urlStr);
-      if (!/^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(urlObj.hostname)) {
-        return null;
+  if (!id) {
+    showError("Missing ID");
+    return;
+  }
+
+  const validIdPattern = /^[a-z0-9_-]{1,35}$/i;
+
+  if (!validIdPattern.test(id)) {
+    showError("Invalid ID");
+    return;
+  }
+
+  function parseCSVLine(line) {
+    const result = [];
+    let current = "";
+    let inQuotes = false;
+
+    for (let i = 0; i < line.length; i++) {
+      const char = line[i];
+      const next = line[i + 1];
+
+      if (char === '"' && inQuotes && next === '"') {
+        current += '"';
+        i++;
+      } else if (char === '"') {
+        inQuotes = !inQuotes;
+      } else if (char === ',' && !inQuotes) {
+        result.push(current);
+        current = "";
+      } else {
+        current += char;
       }
-      return urlObj;
-    } catch {
-      return null;
     }
+
+    result.push(current);
+    return result;
   }
 
   try {
-    const res = await fetch(sheetCSVUrl);
-    if (!res.ok) throw new Error('Could not fetch redirects.csv');
-    const csvText = await res.text();
 
-    const lines = csvText.trim().split('\n');
-    lines.shift();
+    const response = await fetch(SHEET_URL);
 
-    const redirects = {};
-    lines.forEach(line => {
-      const row = line.split(',');
-      const redirect = {
-        id: row[1]?.trim(),
-        url: row[2]?.trim(),
-        expiry: row[3]?.trim(),
-        displayPreview: (row[4]?.trim().toUpperCase() === "TRUE")
-      };
-      if (redirect.id && redirect.url) redirects[redirect.id] = redirect;
-    });
-
-    let redirectObj = redirects[idParam];
-    let urlObj = null;
-
-    if (redirectObj && (!redirectObj.expiry || new Date() < new Date(redirectObj.expiry))) {
-      urlObj = normalizeUrl(redirectObj.url);
-      redirectObj.isCSV = true;
-    } else {
-      urlObj = normalizeUrl(idParam);
-      if (urlObj) redirectObj = { displayPreview: true, isCSV: false };
+    if (!response.ok) {
+      throw new Error();
     }
 
-    if (!urlObj) {
-      document.body.innerHTML = `<div class="message">Link expired or invalid URL ❌</div>`;
-      return;
-    }
+    const csv = await response.text();
 
-    if (redirectObj.displayPreview) {
-      const previewBox = document.createElement('div');
-      previewBox.id = 'previewBox';
+    const rows = csv.trim().split("\n");
 
-      let bannerText = redirectObj.isCSV ? "You are being redirected to:" : "⚠️ Go at your own risk!";
+    rows.shift();
 
-      let metadataHtml = '';
-      if (!redirectObj.isCSV) {
-        metadataHtml = `
-          <br><strong>Protocol:</strong> ${urlObj.protocol}<br>
-          <strong>Hostname:</strong> ${urlObj.hostname}<br>
-          <strong>Path:</strong> ${urlObj.pathname}<br>
-        `;
+    const now = new Date();
+
+    for (const line of rows) {
+
+      const row = parseCSVLine(line);
+
+      const rowId = row[1]?.trim();
+      const url = row[2]?.trim();
+      const expiry = row[3]?.trim();
+      const preview =
+        row[4]?.trim().toUpperCase() === "TRUE";
+
+      if (rowId !== id) {
+        continue;
       }
 
-      previewBox.innerHTML = `
-        ${bannerText}<br><br>
-        <a href="${urlObj.href}" target="_blank" rel="noopener noreferrer nofollow">${urlObj.href}</a>
-        ${metadataHtml}
-        <div id="buttons">
-          <button id="redirectNow">Redirect Now</button>
-          <button id="cancelRedirect">Cancel Redirect</button>
+      if (expiry) {
+        const expDate = new Date(expiry);
+
+        if (
+          !isNaN(expDate) &&
+          now > expDate
+        ) {
+          showError(
+            "Expired",
+            "This redirect has expired."
+          );
+          return;
+        }
+      }
+
+      if (!preview) {
+        window.location.href = url;
+        return;
+      }
+
+      document.body.innerHTML = `
+        <div class="card">
+          <h1>Redirect Notice</h1>
+
+          <p>
+            You are being redirected to:
+          </p>
+
+          <p style="word-break:break-word;">
+            ${url}
+          </p>
+
+          <button
+            id="go"
+            class="btn">
+            Continue
+          </button>
+
+          <button
+            id="cancel"
+            class="btn btn-danger">
+            Cancel
+          </button>
+
+          <div id="timer">
+            Redirecting in 10 seconds...
+          </div>
         </div>
       `;
 
-      // Add countdown only for CSV IDs
-      if (redirectObj.isCSV) {
-        previewBox.innerHTML += `<p id="timer">Redirecting in 10 seconds...</p>`;
-      }
-
-      document.body.innerHTML = "";
-      document.body.appendChild(previewBox);
-
-      document.getElementById('redirectNow').onclick = () => {
-        window.location.href = urlObj.href;
+      document.getElementById("go").onclick = () => {
+        window.location.href = url;
       };
 
-      document.getElementById('cancelRedirect').onclick = () => {
-        window.location.href = 'https://allanhu100.github.io';
+      document.getElementById("cancel").onclick = () => {
+        window.location.href = "/";
       };
 
-      if (redirectObj.isCSV) {
-        let countdown = 10;
-        const timerEl = document.getElementById('timer');
-        const interval = setInterval(() => {
-          countdown--;
-          if (countdown > 0) {
-            timerEl.textContent = `Redirecting in ${countdown} seconds...`;
-          } else {
-            clearInterval(interval);
-            window.location.href = urlObj.href;
-          }
-        }, 1000);
-      }
+      let seconds = 10;
 
-    } else {
-      window.location.href = urlObj.href;
+      const timer =
+        document.getElementById("timer");
+
+      const interval = setInterval(() => {
+
+        seconds--;
+
+        if (seconds <= 0) {
+          clearInterval(interval);
+          window.location.href = url;
+          return;
+        }
+
+        timer.textContent =
+          `Redirecting in ${seconds} seconds...`;
+
+      }, 1000);
+
+      return;
     }
 
-  } catch (e) {
-    console.error('Redirect failed:', e);
-    document.body.innerHTML = `<div class="message">Redirect failed ❌</div>`;
+    showError(
+      "Not Found",
+      "No redirect exists for that ID."
+    );
+
+  } catch (err) {
+
+    console.error(err);
+
+    showError(
+      "Redirect Failed",
+      "Unable to load redirect data."
+    );
+
   }
+
 })();
 </script>
-
 </head>
+
 <body>
-  <div class="message">Redirecting, please wait...</div>
+<div class="card">
+  <h1>Redirecting...</h1>
+  <p>Please wait while we find your link.</p>
+</div>
 </body>
 </html>
