@@ -86,40 +86,74 @@ body{
     `;
   }
 
+  console.log("=== REDIRECT DEBUG START ===");
+  console.log("href:", window.location.href);
+  console.log("pathname:", window.location.pathname);
+  console.log("search:", window.location.search);
+
   const pathParts =
     window.location.pathname.split("/").filter(Boolean);
+
+  console.log("pathParts:", pathParts);
 
   const params =
     new URLSearchParams(window.location.search);
 
+  const id = params.get("id");
+
+  console.log("id:", id);
+
   if (pathParts.length !== 1 || pathParts[0] !== "r") {
+    console.error("Route validation failed");
     showError("Invalid URL");
     return;
   }
 
-  const id = params.get("id");
-
   if (!id) {
+    console.error("Missing id parameter");
     showError("Missing ID");
     return;
   }
 
   const validIdPattern = /^[a-z0-9_-]{1,35}$/i;
 
+  console.log("id valid:", validIdPattern.test(id));
+
   if (!validIdPattern.test(id)) {
+    console.error("ID failed regex validation");
     showError("Invalid ID", "The provided ID has an invalid syntax.");
     return;
   }
 
   (async () => {
     try {
+
+      console.log("Fetching:", API_URL);
+
       const response = await fetch(API_URL);
-      if (!response.ok) throw new Error("Fetch failed");
+
+      console.log("Fetch response:", response);
+      console.log("Fetch status:", response.status);
+      console.log("Fetch ok:", response.ok);
+
+      if (!response.ok) {
+        throw new Error(`Fetch failed (${response.status})`);
+      }
 
       const data = await response.json();
+
+      console.log("JSON loaded:");
+      console.log(data);
+      console.log("Array:", Array.isArray(data));
+      console.log("Length:", data.length);
+
       const entry = data.find(item => item.id === id);
 
+      console.log("Matched entry:");
+      console.log(entry);
+
       if (!entry) {
+        console.error("No matching redirect found");
         showError("Not Found", "No redirect exists for that ID.");
         return;
       }
@@ -128,23 +162,44 @@ body{
       const expiry = entry.expiry;
       const preview = entry.preview === true;
 
+      console.log("url:", url);
+      console.log("expiry:", expiry);
+      console.log("preview:", preview);
+
       if (!url) {
+        console.error("Entry missing URL");
         showError("Invalid Entry", "Missing URL.");
         return;
       }
 
       if (expiry) {
         const expDate = new Date(expiry);
+
+        console.log("Parsed expiry:", expDate);
+        console.log("Expiry timestamp:", expDate.getTime());
+
         if (!isNaN(expDate) && Date.now() > expDate.getTime()) {
+          console.error("Redirect expired");
           showError("Expired", "This redirect has expired.");
           return;
         }
       }
 
       if (!preview) {
+        console.log("Redirecting immediately to:", url);
+
+        try {
+          const testUrl = new URL(url);
+          console.log("URL validation passed:", testUrl.href);
+        } catch (urlErr) {
+          console.error("URL validation failed:", urlErr);
+        }
+
         window.location.href = url;
         return;
       }
+
+      console.log("Showing preview page");
 
       document.body.innerHTML = `
         <div class="card">
@@ -158,10 +213,12 @@ body{
       `;
 
       document.getElementById("go").onclick = () => {
+        console.log("Continue clicked");
         window.location.href = url;
       };
 
       document.getElementById("cancel").onclick = () => {
+        console.log("Cancel clicked");
         window.location.href = "/";
       };
 
@@ -170,17 +227,33 @@ body{
 
       const interval = setInterval(() => {
         seconds--;
+
+        console.log("Countdown:", seconds);
+
         if (seconds <= 0) {
           clearInterval(interval);
+          console.log("Countdown complete, redirecting");
           window.location.href = url;
           return;
         }
-        timer.textContent = `Redirecting in ${seconds} seconds...`;
+
+        timer.textContent =
+          `Redirecting in ${seconds} seconds...`;
+
       }, 1000);
 
     } catch (err) {
-      console.error(err);
-      showError("Redirect Failed", "Unable to load redirect data.");
+
+      console.error("=== ERROR CAUGHT ===");
+      console.error("Name:", err.name);
+      console.error("Message:", err.message);
+      console.error("Stack:", err.stack);
+      console.error("Full object:", err);
+
+      showError(
+        err.name || "Redirect Failed",
+        err.message || "Unable to load redirect data."
+      );
     }
   })();
 
