@@ -1,3 +1,4 @@
+html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -64,8 +65,8 @@ body{
 <script>
 (function () {
 
-  const SHEET_URL =
-    `https://docs.google.com/spreadsheets/d/e/2PACX-1vQqTIz74rTp4UAPrND29ZzRMoDgQS2HLB7FKU5m1IF0AhvvxPgn7ocyUXy9DMiGVb1_DKiePMGIVNTc/pub?gid=463148270&single=true&output=csv&t=${Date.now()}`;
+  const API_URL =
+    "https://raw.githubusercontent.com/allanhu100/public/main/redirects.json";
 
   function showError(
     title = "Error",
@@ -104,133 +105,91 @@ body{
     return;
   }
 
-  function parseCSVLine(line) {
-    const result = [];
-    let current = "";
-    let inQuotes = false;
-
-    for (let i = 0; i < line.length; i++) {
-      const char = line[i];
-      const next = line[i + 1];
-
-      if (char === '"' && inQuotes && next === '"') {
-        current += '"';
-        i++;
-      } else if (char === '"') {
-        inQuotes = !inQuotes;
-      } else if (char === ',' && !inQuotes) {
-        result.push(current);
-        current = "";
-      } else {
-        current += char;
-      }
-    }
-
-    result.push(current);
-    return result;
-  }
-
   (async () => {
     try {
 
-      const response = await fetch(SHEET_URL);
+      const response = await fetch(API_URL);
       if (!response.ok) throw new Error("Fetch failed");
 
-      const csv = await response.text();
-      const rows = csv.trim().split(/\r?\n/);
+      const data = await response.json();
 
-      rows.shift();
+      const entry = data.find(item => item.id === id);
 
-      const now = new Date();
+      if (!entry) {
+        showError("Not Found", "No redirect exists for that ID.");
+        return;
+      }
 
-      for (const line of rows) {
+      const url = entry.url;
+      const expiry = entry.expiry;
+      const preview = entry.preview === true;
 
-        const row = parseCSVLine(line);
+      if (!url) {
+        showError("Invalid Entry", "Missing URL.");
+        return;
+      }
 
-        const rowId = row[1]?.trim();
-        const url = row[2]?.trim();
-        const expiry = row[3]?.trim();
-        const preview =
-          row[4]?.trim().toUpperCase() === "TRUE";
+      if (expiry) {
+        const expDate = new Date(expiry);
 
-        if (rowId !== id) continue;
-        if (!url) continue;
-
-        if (expiry) {
-          const expDate = new Date(expiry);
-
-          if (!isNaN(expDate) && now > expDate) {
-            showError(
-              "Expired",
-              "This redirect has expired."
-            );
-            return;
-          }
+        if (!isNaN(expDate) && Date.now() > expDate.getTime()) {
+          showError("Expired", "This redirect has expired.");
+          return;
         }
+      }
 
-        if (!preview) {
+      if (!preview) {
+        window.location.href = url;
+        return;
+      }
+
+      document.body.innerHTML = `
+        <div class="card">
+          <h1>Redirect Notice</h1>
+
+          <p>You are being redirected to:</p>
+
+          <p style="word-break:break-word;">
+            ${url}
+          </p>
+
+          <button id="go" class="btn">Continue</button>
+          <button id="cancel" class="btn btn-danger">Cancel</button>
+
+          <div id="timer">
+            Redirecting in 10 seconds...
+          </div>
+        </div>
+      `;
+
+      document.getElementById("go").onclick = () => {
+        window.location.href = url;
+      };
+
+      document.getElementById("cancel").onclick = () => {
+        window.location.href = "/";
+      };
+
+      let seconds = 10;
+      const timer = document.getElementById("timer");
+
+      const interval = setInterval(() => {
+        seconds--;
+
+        if (seconds <= 0) {
+          clearInterval(interval);
           window.location.href = url;
           return;
         }
 
-        document.body.innerHTML = `
-          <div class="card">
-            <h1>Redirect Notice</h1>
+        timer.textContent =
+          `Redirecting in ${seconds} seconds...`;
 
-            <p>You are being redirected to:</p>
-
-            <p style="word-break:break-word;">
-              ${url}
-            </p>
-
-            <button id="go" class="btn">Continue</button>
-            <button id="cancel" class="btn btn-danger">Cancel</button>
-
-            <div id="timer">
-              Redirecting in 10 seconds...
-            </div>
-          </div>
-        `;
-
-        document.getElementById("go").onclick = () => {
-          window.location.href = url;
-        };
-
-        document.getElementById("cancel").onclick = () => {
-          window.location.href = "/";
-        };
-
-        let seconds = 10;
-        const timer = document.getElementById("timer");
-
-        const interval = setInterval(() => {
-          seconds--;
-
-          if (seconds <= 0) {
-            clearInterval(interval);
-            window.location.href = url;
-            return;
-          }
-
-          timer.textContent =
-            `Redirecting in ${seconds} seconds...`;
-
-        }, 1000);
-
-        return;
-      }
-
-      showError(
-        "Not Found",
-        "No redirect exists for that ID."
-      );
+      }, 1000);
 
     } catch (err) {
       console.error(err);
-      showError(
-        "Redirect Failed",
-        "Unable to load redirect data."
-      );
+      showError("Redirect Failed", "Unable to load redirect data.");
     }
   })();
 
