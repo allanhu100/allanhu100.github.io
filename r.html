@@ -60,6 +60,13 @@ body{
   font-size:14px;
 }
 </style>
+</head>
+
+<body>
+<div class="card">
+  <h1>Redirecting...</h1>
+  <p>Please wait while we find your link.</p>
+</div>
 
 <script>
 (function () {
@@ -100,18 +107,16 @@ body{
   const validIdPattern = /^[a-z0-9_-]{1,35}$/i;
 
   if (!validIdPattern.test(id)) {
-    showError("Invalid ID");
+    showError("Invalid ID", "The provided ID has an invalid syntax.");
     return;
   }
 
   (async () => {
     try {
-
       const response = await fetch(API_URL);
       if (!response.ok) throw new Error("Fetch failed");
 
       const data = await response.json();
-
       const entry = data.find(item => item.id === id);
 
       if (!entry) {
@@ -130,7 +135,6 @@ body{
 
       if (expiry) {
         const expDate = new Date(expiry);
-
         if (!isNaN(expDate) && Date.now() > expDate.getTime()) {
           showError("Expired", "This redirect has expired.");
           return;
@@ -145,19 +149,11 @@ body{
       document.body.innerHTML = `
         <div class="card">
           <h1>Redirect Notice</h1>
-
           <p>You are being redirected to:</p>
-
-          <p style="word-break:break-word;">
-            ${url}
-          </p>
-
+          <p style="word-break:break-word;">${url}</p>
           <button id="go" class="btn">Continue</button>
           <button id="cancel" class="btn btn-danger">Cancel</button>
-
-          <div id="timer">
-            Redirecting in 10 seconds...
-          </div>
+          <div id="timer">Redirecting in 10 seconds...</div>
         </div>
       `;
 
@@ -174,16 +170,12 @@ body{
 
       const interval = setInterval(() => {
         seconds--;
-
         if (seconds <= 0) {
           clearInterval(interval);
           window.location.href = url;
           return;
         }
-
-        timer.textContent =
-          `Redirecting in ${seconds} seconds...`;
-
+        timer.textContent = `Redirecting in ${seconds} seconds...`;
       }, 1000);
 
     } catch (err) {
@@ -194,12 +186,5 @@ body{
 
 })();
 </script>
-</head>
-
-<body>
-<div class="card">
-  <h1>Redirecting...</h1>
-  <p>Please wait while we find your link.</p>
-</div>
 </body>
 </html>
