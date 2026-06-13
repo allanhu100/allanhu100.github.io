@@ -1,7 +1,9 @@
 document.addEventListener("DOMContentLoaded", () => {
+    const year = new Date().getFullYear();
+
     document.body.insertAdjacentHTML("beforeend", `
 <footer class="footer">
-    &copy; Allan Hu
+    &copy; ${year} Allan Hu
     <a href="https://allanhu100.github.io/dev">Developer Portal</a>
     <a href="https://allanhu100.github.io/credits">Credits</a>
 </footer>
