@@ -1,0 +1,12 @@
+[
+  {
+    "id": "exercise1",
+    "url": "https://docs.google.com/document/d/16YlXOBK5bpCubKrsQzGtzuAB6MZDs8aI5ue4iHPRwV0/edit"
+  },
+  {
+    "id": "example",
+    "url": "https://example.com",
+    "expiry": "2222-02-22T22:22:22Z",
+    "preview": true
+  }
+]
